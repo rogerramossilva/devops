@@ -1,0 +1,61 @@
+version: '3'
+services:
+  nginx:
+    build:
+       dockerfile: ./nginx/Dockerfile
+       context: .
+    image: rogerramossilva/nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    networks:
+      - redelocal
+    depends_on:
+      - "web1"
+      - "web2"
+      - "web3"
+  db:
+    build:
+      dockerfile: ./db/Dockerfile
+      context: .
+    image: rogerramossilva/db
+    container_name: db
+    networks:
+      - redelocal
+    ports: 
+      - "3306"
+
+  web1:
+    build:
+       dockerfile: ./web/Dockerfile
+       context: .
+    image: rogerramossilva/web
+    container_name: web1
+    ports:
+      - "80"
+    networks:
+      - redelocal
+    depends_on:
+      - "db"
+  web2: 
+    image: rogerramossilva/web
+    container_name: web2
+    ports:
+      - "80"
+    networks:
+      - redelocal
+    depends_on:
+      - "db"
+  web3: 
+    image: rogerramossilva/web
+    container_name: web3
+    ports:
+      - "80"
+    networks:
+      - redelocal 
+    depends_on:
+      - "db"  
+    
+networks:
+  redelocal:
+    driver: bridge
