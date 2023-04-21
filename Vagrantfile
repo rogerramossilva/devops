@@ -75,11 +75,11 @@ Vagrant.configure("2") do |config|
 		puppet.manifest_file = "install.pp"
 	end
   end
-  config.vm.define "ansible" do |ansible|
+  config.vm.define "controle" do |controle|
         ansible.vm.box = "shekeriev/debian-11"
- 	ansible.vm.hostname = "ansible"
+ 	ansible.vm.hostname = "controle"
 	ansible.vm.provider "virtualbox" do |vb|
-	  	vb.name = "ansible"
+	  	vb.name = "controle"
  	  	vb.memory = "512"
 	  	vb.cpus = 2
         end
