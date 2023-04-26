@@ -7,15 +7,15 @@ exec { "apt-update":
 }
 
 package {[
-    "php7.0",
+    "php7.4",
     "php-pear",
-    "php7.0-curl",
-    "php7.0-gd",
-    "php7.0-intl",
-    "php7.0-xmlrpc",
-    "php7.0-mysql",
+    "php7.4-curl",
+    "php7.4-gd",
+    "php7.4-intl",
+    "php7.4-xmlrpc",
+    "php7.4-mysql",
     "apache2",
-    "python-mysqldb",
+    "python2-mysqldb",
     "wget",
     "curl",
     "vim",
