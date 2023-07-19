@@ -1,0 +1,94 @@
+---
+- hosts: intranet
+  become: true
+  vars_files:
+    - vars/default.yml
+  tasks:
+    - name: 'Instalação de pacotes webserver'
+      become: yes
+      apt:
+        pkg:
+          - php7.0
+          - php-pear
+          - php7.0-curl
+          - php7.0-gd
+          - php7.0-intl
+          - php7.0-xmlrpc
+          - php7.0-mysql
+          - apache2
+          - python-mysqldb
+          - wget
+          - zip
+          - curl
+          - vim
+        state: present
+    - name: 'Diretorio do webserver'
+      become: yes
+      file: 
+        path: /srv/www
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0775'
+    - name: 'Download e Extração do arquivo da aplicação'
+      unarchive: 
+        src: https://github.com/rogerramossilva/devops/raw/master/express.zip
+        dest: /srv/www
+        validate_certs: no
+        remote_src: yes
+    - name: 'Substitui IP de Conexão com o Banco'
+      replace:
+        path: /srv/www/express/backup.php
+        regexp: '192\.168\.1\.20'
+        replace: '172.17.177.42'
+    - name: 'Criando virtual host para pagina express.asf.com'
+      template:
+        src: "files/express.conf"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+    - name: 'Controle de Diretório Virtual HOst'
+      template:
+        src: "files/direxpress.conf"
+        dest: "/etc/apache2/conf-available/direxpress.conf"
+    - name: 'Entrada DNS arquivo /etc/hosts'
+      template:
+        src: "files/hostsintranet.conf"
+        dest: "/etc/hosts"
+    - name: 'Habilitar Site'
+      shell: /usr/sbin/a2ensite {{ http_conf }}
+      notify: Reload Apache
+    - name: 'Habilitar Arquivo de configuração express'
+      shell: /usr/sbin/a2enconf direxpress.conf
+      notify: Reload Apache
+    - name: 'Habilitar Modulo php7'
+      apache2_module:
+        state: present
+        name: php7.0
+      notify: Reload Apache
+    - name: 'Habilitar Modulo Virtual Host'
+      apache2_module:
+        state: present
+        name: vhost_alias
+      notify: Reload Apache
+    - name: 'Permissão Recursiva no Diretório da Pagina'
+      file:
+        path: /srv/www/express
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+
+  handlers:
+    - name: Reload Apache
+      service: 
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+    - name: Start Apache
+      service: 
+        name: apache2
+        state: started
+
+
