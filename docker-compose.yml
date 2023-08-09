@@ -2,7 +2,7 @@ version: '3'
 services:
   nginx:
     build:
-       dockerfile: ./nginx/Dockerfile
+       dockerfile: ./Dockerfilenginx
        context: .
     image: rogerramossilva/nginx
     container_name: nginx
@@ -16,7 +16,7 @@ services:
       - "web3"
   db:
     build:
-      dockerfile: ./db/Dockerfile
+      dockerfile: ./Dockerfiledb
       context: .
     image: rogerramossilva/db
     container_name: db
@@ -27,7 +27,7 @@ services:
 
   web1:
     build:
-       dockerfile: ./web/Dockerfile
+       dockerfile: ./Dockerfileweb
        context: .
     image: rogerramossilva/web
     container_name: web1
