@@ -1,0 +1,85 @@
+---
+- name: Instalação do Jenkins
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Instalar dependências
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - openjdk-11-jdk
+          - software-properties-common
+        state: present
+
+    - name: Adicionar chave GPG do Jenkins
+      apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        state: present
+
+    - name: Adicionar repositório do Jenkins
+      apt_repository:
+        repo: deb https://pkg.jenkins.io/debian-stable binary/
+        state: present
+
+    - name: Atualizar cache de pacotes
+      apt:
+        update_cache: yes
+
+    - name: Instalar Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Iniciar e habilitar serviço do Jenkins
+      systemd:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Adicionar chave GPG do Docker
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Adicionar repositório do Docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+        state: present
+
+    - name: Atualizar cache de pacotes (novamente)
+      apt:
+        update_cache: yes
+
+    - name: Instalar Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Instalar Docker Compose
+      shell: |
+        curl -sSL https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+      args:
+        executable: /bin/bash
+        creates: /usr/local/bin/docker-compose
+
+    - name: Adicionar usuário ao grupo docker
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Adicionar usuário ao grupo docker
+      user:
+        name: jenkins
+        groups: docker
+        append: yes
+
+    - name: Reiniciar serviço do Docker
+      service:
+        name: docker
+        state: restarted
